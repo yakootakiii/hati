@@ -9,11 +9,24 @@ class FakePushMessaging implements PushMessaging {
     this.available = true,
     this.permitted = true,
     this.currentToken = 'token-1',
+    this.web = false,
+    this.alreadyAllowed = false,
+    this.support,
   });
 
   bool available;
   bool permitted;
   String? currentToken;
+
+  /// Behave like a browser: wait for a tap before asking (D-72).
+  bool web;
+
+  /// The browser already allowed notifications on an earlier visit.
+  bool alreadyAllowed;
+
+  /// Overrides [available], e.g. [PushSupport.needsHomeScreen].
+  PushSupport? support;
+  int permissionRequests = 0;
 
   final _routes = StreamController<String>.broadcast();
   final _refreshes = StreamController<String>.broadcast();
@@ -23,9 +36,17 @@ class FakePushMessaging implements PushMessaging {
   void refresh(String token) => _refreshes.add(token);
 
   @override
-  Future<bool> initialize() async => available;
+  Future<PushSupport> initialize() async =>
+      support ?? (available ? PushSupport.supported : PushSupport.unsupported);
   @override
-  Future<bool> requestPermission() async => permitted;
+  bool get needsUserGesture => web;
+  @override
+  Future<bool> hasPermission() async => alreadyAllowed;
+  @override
+  Future<bool> requestPermission() async {
+    permissionRequests++;
+    return permitted;
+  }
   @override
   Future<String?> token() async => currentToken;
   @override
@@ -35,7 +56,7 @@ class FakePushMessaging implements PushMessaging {
   @override
   Stream<void> get foregroundMessages => _foreground.stream;
   @override
-  String get platform => 'android';
+  String get platform => web ? 'web' : 'android';
 }
 
 class FakeDeviceTokenRepository implements DeviceTokenRepository {

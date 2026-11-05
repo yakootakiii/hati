@@ -30,8 +30,11 @@ interface NotificationRow {
 
 interface DeviceToken {
   token: string;
-  platform: 'ios' | 'android';
+  platform: 'ios' | 'android' | 'web';
 }
+
+/// Where web notifications open (D-72): the web app, with a hash route.
+const WEB_APP = 'https://hati-a1a23.web.app/app/';
 
 interface SendOutcome {
   token: string;
@@ -153,6 +156,21 @@ class FcmSender implements PushSender {
               // One notification per bill: a newer one replaces the older.
               notification: { tag: String(n.data?.route ?? n.id) },
             },
+            // The web app (D-72): the browser shows it, and a tap opens the
+            // page it is about in Hati's web app.
+            ...(token.platform === 'web'
+              ? {
+                webpush: {
+                  fcm_options: {
+                    link: `${WEB_APP}#${String(n.data?.route ?? '/')}`,
+                  },
+                  notification: {
+                    icon: `${WEB_APP}icons/Icon-192.png`,
+                    tag: String(n.data?.route ?? n.id),
+                  },
+                },
+              }
+              : {}),
           },
         }),
       },

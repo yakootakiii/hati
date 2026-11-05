@@ -57,6 +57,18 @@ select pg_temp.assert(
 );
 
 \echo ''
+\echo 'web browsers (D-72):'
+
+set local role authenticated;
+select pg_temp.act_as(:'bea');
+select public.register_device_token('browser-1', 'web');
+reset role;
+select pg_temp.assert(
+  (select platform from public.device_tokens where token = 'browser-1') = 'web',
+  'the web app registers as a web device'
+);
+
+\echo ''
 \echo 'All push device tests passed.'
 
 rollback;

@@ -54,13 +54,34 @@ DeviceTokenRepository deviceTokenRepository(Ref ref) =>
 ///
 /// Push is best effort: every failure here is logged and swallowed, because
 /// no part of Hati may depend on a notification arriving.
+/// Where push stands on this device (D-65, D-72).
+enum PushStatus {
+  /// Not started, or signed out.
+  off,
+
+  /// This build or browser cannot do push.
+  unsupported,
+
+  /// Safari on an iPhone, not added to the Home Screen.
+  needsHomeScreen,
+
+  /// Supported, waiting for the user to turn it on (web).
+  askable,
+
+  /// The user said no.
+  denied,
+
+  /// Registered: pushes arrive.
+  on,
+}
+
 @Riverpod(keepAlive: true)
 class PushRegistration extends _$PushRegistration {
   String? _token;
   final _subscriptions = <StreamSubscription<Object?>>[];
 
   @override
-  bool build() {
+  PushStatus build() {
     ref.onDispose(() {
       for (final s in _subscriptions) {
         s.cancel();
@@ -77,13 +98,19 @@ class PushRegistration extends _$PushRegistration {
       },
       fireImmediately: true,
     );
-    return false;
+    return PushStatus.off;
   }
 
   Future<void> _start() async {
     final messaging = ref.read(pushMessagingProvider);
     try {
-      if (!await messaging.initialize()) return;
+      final support = await messaging.initialize();
+      if (support != PushSupport.supported) {
+        state = support == PushSupport.needsHomeScreen
+            ? PushStatus.needsHomeScreen
+            : PushStatus.unsupported;
+        return;
+      }
 
       if (_subscriptions.isEmpty) {
         _subscriptions
@@ -92,12 +119,36 @@ class PushRegistration extends _$PushRegistration {
           ..add(messaging.foregroundMessages.listen((_) => _refreshBell()));
       }
 
-      if (!await messaging.requestPermission()) return;
-      final token = await messaging.token();
-      if (token != null) await _register(token);
+      // Browsers only allow asking from a tap: wait for "Turn on" (D-72).
+      if (messaging.needsUserGesture && !await messaging.hasPermission()) {
+        state = PushStatus.askable;
+        return;
+      }
+
+      await _askAndRegister();
     } on Object catch (error) {
       debugPrint('[push] could not start: $error');
     }
+  }
+
+  /// "Turn on notifications" on the web. Must run straight from the tap —
+  /// nothing awaited before the permission request — or Safari ignores it.
+  Future<void> enable() async {
+    try {
+      await _askAndRegister();
+    } on Object catch (error) {
+      debugPrint('[push] could not turn on: $error');
+    }
+  }
+
+  Future<void> _askAndRegister() async {
+    final messaging = ref.read(pushMessagingProvider);
+    if (!await messaging.requestPermission()) {
+      state = PushStatus.denied;
+      return;
+    }
+    final token = await messaging.token();
+    if (token != null) await _register(token);
   }
 
   Future<void> _register(String token) async {
@@ -108,7 +159,7 @@ class PushRegistration extends _$PushRegistration {
             platform: ref.read(pushMessagingProvider).platform,
           );
       _token = token;
-      state = true;
+      state = PushStatus.on;
     } on Object catch (error) {
       debugPrint('[push] could not register this phone: $error');
     }
@@ -136,6 +187,6 @@ class PushRegistration extends _$PushRegistration {
       debugPrint('[push] could not release this phone: $error');
     }
     _token = null;
-    state = false;
+    state = PushStatus.off;
   }
 }

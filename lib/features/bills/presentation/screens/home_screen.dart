@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/semantic_colors.dart';
 import '../../../../core/money/money.dart';
+import '../../../../core/push/push_prompt.dart';
 import '../../../../core/widgets/amount_field.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/surfaces.dart';
@@ -99,6 +100,8 @@ class HomeScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Web only: turning on notifications (D-72).
+                      const PushPrompt(),
                       _BalanceHeader(owing: owing, owed: owed),
 
                       if (shares.isNotEmpty) ...[

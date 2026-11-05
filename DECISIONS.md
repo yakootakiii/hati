@@ -909,3 +909,18 @@ committed.
 Home Screen" and iOS 16.4+. Opening wallet apps from Safari is best effort and
 untested on a real iPhone. This goes beyond spec §1, which left a web client
 out of v1.
+
+### D-72 — Push notifications in the web app
+
+**Decision:** the web app uses the same FCM pipeline as Android. A "Hati Web"
+app in the Firebase project, a background script (`web/firebase-messaging-sw.js`,
+Firebase JS 13.1.0 to match firebase_core_web), and the VAPID key from `.env`.
+Browsers register as platform `web` (`…0026`); send-push gives web
+notifications a link into the web app (`/app/#/route`) and Hati's icon.
+**Asking:** browsers, and iPhones in particular, allow the permission prompt
+only from a tap, so the web app never asks on its own. Home shows a "Get
+notified" card with "Turn on"; Safari on an iPhone that is not running Hati
+from the Home Screen gets the "Add to Home Screen" instructions instead, since
+iOS (16.4+) offers push only there. A browser that already allowed it
+registers quietly. `PushRegistration` now reports a `PushStatus`.
+**Untested on a real iPhone** until the VAPID key is set and the site redeployed.
