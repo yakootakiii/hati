@@ -23,6 +23,15 @@
         ]
       },
       {
+        "source": "/app/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
         "source": "/app/@(index.html|flutter_bootstrap.js|manifest.json)",
         "headers": [
           {
