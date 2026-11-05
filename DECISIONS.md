@@ -885,3 +885,27 @@ method still needs its screenshot (HT047) — and the payer still confirms, so a
 false cash claim is as visible as any other. "Settle all" works in cash too.
 The "How did you pay?" chips (shown when the payer has no wallets) lose their
 "Cash / other" label; cash has its own option now.
+
+### D-71 — A web app, for iPhones
+
+**Why:** iPhones cannot install the APK, and every native route to them goes
+through a paid Apple Developer account. The web app is the free way in.
+**Decision:** the same Flutter code built for the web, served from Firebase
+Hosting at `https://hati-a1a23.web.app/app/` with hash routes (`/app/#/…`),
+so no server rewrites are needed for deep pages. A manifest and Apple meta
+tags make "Add to Home Screen" open it full-screen with Hati's icon.
+`tool/build_web.sh` builds it into `hosting/public/app`, which is not
+committed.
+- `AppPlatform` replaces `dart:io`'s `Platform`, which throws in a browser.
+- Photos are resized by the browser's picker; the native compressor is skipped.
+- Save QR downloads the image (`browser_download_web.dart`, conditionally
+  imported so Android never compiles it).
+- Sign-in, reset and verification links return to the web app when started
+  there (`SupabaseConfig.authRedirect`); its URL must be in Supabase's
+  redirect allow list.
+- `delete-account` answers CORS preflights from Hati's own site.
+- The invite page offers "Open Hati on the web" to iPhones and computers.
+**Not yet (Stage 2):** web push notifications; on iPhone they also need "Add to
+Home Screen" and iOS 16.4+. Opening wallet apps from Safari is best effort and
+untested on a real iPhone. This goes beyond spec §1, which left a web client
+out of v1.

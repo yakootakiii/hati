@@ -54,12 +54,10 @@ abstract final class StoragePaths {
     required String groupId,
     required String billId,
     required String filename,
-  }) =>
-      '$groupId/$billId/$filename';
+  }) => '$groupId/$billId/$filename';
 
   static String paymentProof({
     required String groupId,
     required String filename,
-  }) =>
-      '$groupId/$filename';
+  }) => '$groupId/$filename';
 }

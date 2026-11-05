@@ -34,3 +34,5 @@ a { color: var(--accent); }
 ul { padding-left: 20px; }
 footer { margin-top: 48px; font-size: 13px; color: var(--muted); }
 footer a { color: var(--muted); }
+
+.button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--hairline); margin-top: 0; }

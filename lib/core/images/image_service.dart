@@ -20,7 +20,7 @@ abstract interface class ImageService {
 
 class PlatformImageService implements ImageService {
   PlatformImageService({ImagePicker? picker})
-      : _picker = picker ?? ImagePicker();
+    : _picker = picker ?? ImagePicker();
 
   final ImagePicker _picker;
 
@@ -30,15 +30,32 @@ class PlatformImageService implements ImageService {
 
   @override
   Future<PickedImage?> pick(ImageSourceKind source) async {
+    // In a browser the picker resizes on a canvas itself; the native
+    // compressor would need an extra JavaScript library there (D-71).
     final file = await _picker.pickImage(
       source: switch (source) {
         ImageSourceKind.camera => ImageSource.camera,
         ImageSourceKind.gallery => ImageSource.gallery,
       },
+      maxWidth: kIsWeb ? maxLongEdge.toDouble() : null,
+      maxHeight: kIsWeb ? maxLongEdge.toDouble() : null,
+      imageQuality: kIsWeb ? jpegQuality : null,
     );
     if (file == null) return null;
 
     final original = await file.readAsBytes();
+    if (kIsWeb) {
+      final type = file.mimeType ?? 'image/jpeg';
+      return PickedImage(
+        bytes: original,
+        contentType: type,
+        extension: switch (type) {
+          'image/png' => 'png',
+          'image/webp' => 'webp',
+          _ => 'jpg',
+        },
+      );
+    }
     return compress(original);
   }
 

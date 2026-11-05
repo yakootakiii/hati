@@ -48,8 +48,21 @@ class AppLinksSource implements LinkSource {
   Stream<Uri> get links => _appLinks.uriLinkStream;
 }
 
+/// In a browser the address bar is the route already, so there is nothing
+/// to listen to (D-71).
+class NoLinkSource implements LinkSource {
+  const NoLinkSource();
+
+  @override
+  Future<Uri?> initial() async => null;
+
+  @override
+  Stream<Uri> get links => const Stream.empty();
+}
+
 @Riverpod(keepAlive: true)
-LinkSource linkSource(Ref ref) => AppLinksSource();
+LinkSource linkSource(Ref ref) =>
+    kIsWeb ? const NoLinkSource() : AppLinksSource();
 
 /// Sends invite links to the join screen — the one Hati opened with and any
 /// that arrive while it runs. Signed out, the router stashes the invite and

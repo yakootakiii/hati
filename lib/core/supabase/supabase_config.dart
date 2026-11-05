@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Supabase connection details, supplied at build time.
 ///
 /// Passed with `--dart-define-from-file=.env` so no key is ever committed and
@@ -20,7 +22,12 @@ abstract final class SupabaseConfig {
   /// AndroidManifest.xml and Info.plist. It must also be listed under
   /// Authentication → URL Configuration → Redirect URLs in the dashboard, or
   /// Supabase falls back to the Site URL (DECISIONS D-60).
-  static const String authRedirect = 'com.hati.hati://auth-callback';
+  static String get authRedirect =>
+      kIsWeb ? webAppUrl : 'com.hati.hati://auth-callback';
+
+  /// The web app (D-71). Sign-in, reset and verification links come back
+  /// here when started in a browser; also needs to be in the allow list.
+  static const String webAppUrl = 'https://hati-a1a23.web.app/app/';
 
   /// False until a project is linked, which lets the app boot and show a setup
   /// screen instead of crashing on a missing key.

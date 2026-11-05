@@ -1,7 +1,9 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:gal/gal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'browser_download_stub.dart'
+    if (dart.library.js_interop) 'browser_download_web.dart';
 
 part 'image_gallery.g.dart';
 
@@ -37,5 +39,22 @@ class GalImageGallery implements ImageGallery {
   }
 }
 
+/// The web version (D-71): browsers have no photo gallery to write to, so
+/// the QR is downloaded instead.
+class BrowserDownloadGallery implements ImageGallery {
+  const BrowserDownloadGallery();
+
+  @override
+  Future<void> save(Uint8List bytes, {required String name}) async {
+    final safe = name.replaceAll(RegExp(r'[^A-Za-z0-9 ._-]'), '').trim();
+    downloadInBrowser(
+      bytes,
+      '${safe.isEmpty ? 'Hati QR' : safe}.png',
+      'image/png',
+    );
+  }
+}
+
 @Riverpod(keepAlive: true)
-ImageGallery imageGallery(Ref ref) => const GalImageGallery();
+ImageGallery imageGallery(Ref ref) =>
+    kIsWeb ? const BrowserDownloadGallery() : const GalImageGallery();

@@ -16,13 +16,25 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { publishableKey, secretKey } from '../_shared/keys.ts';
 
+// The web app calls this from a browser (D-71), which asks first with a CORS
+// preflight. Only Hati's own site may call it from a page.
+const corsHeaders = {
+  'Access-Control-Allow-Origin': 'https://hati-a1a23.web.app',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 const json = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 
 Deno.serve(async (request: Request) => {
+  if (request.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
   if (request.method !== 'POST') return json(405, { error: 'POST only' });
 
   const authorization = request.headers.get('Authorization');

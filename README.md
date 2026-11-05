@@ -18,7 +18,9 @@ Get the latest Android build from **[Releases](../../releases)**.
 1. Download `hati-…-arm64-v8a.apk` on your phone.
 2. Open it, and allow your browser or file manager to install unknown apps when Android asks.
 
-The APK is for 64-bit Android phones, which covers nearly every phone from the last several years. There is no iPhone build yet.
+The APK is for 64-bit Android phones, which covers nearly every phone from the last several years.
+
+**iPhone or computer?** Use the web app at **[hati-a1a23.web.app/app](https://hati-a1a23.web.app/app/)**. On an iPhone, open it in Safari, tap Share → **Add to Home Screen**, and it opens like an app. (Push notifications aren't on the web version yet.)
 
 ## What it does
 
@@ -69,6 +71,7 @@ flutter run --dart-define-from-file=.env
 | Apply database migrations | `supabase db push` |
 | Deploy an edge function | `supabase functions deploy <name>` |
 | Regenerate the web legal pages | `dart run tool/gen_legal_html.dart` |
+| Build the web app into the website | `tool/build_web.sh` |
 | Deploy the website | `firebase deploy --only hosting` |
 | Release APK (arm64) | `flutter build apk --release --target-platform android-arm64 --dart-define-from-file=.env` |
 

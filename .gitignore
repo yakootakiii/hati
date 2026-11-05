@@ -50,3 +50,6 @@ brag-output*/
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 **/GeneratedPluginRegistrant.*
+
+# Built by tool/build_web.sh — regenerated on every deploy
+hosting/public/app/

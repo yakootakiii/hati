@@ -3,12 +3,33 @@
     "public": "hosting/public",
     "cleanUrls": true,
     "rewrites": [
-      { "source": "/join/**", "destination": "/join.html" }
+      {
+        "source": "/app/**",
+        "destination": "/app/index.html"
+      },
+      {
+        "source": "/join/**",
+        "destination": "/join.html"
+      }
     ],
     "headers": [
       {
         "source": "/.well-known/assetlinks.json",
-        "headers": [{ "key": "Content-Type", "value": "application/json" }]
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      {
+        "source": "/app/@(index.html|flutter_bootstrap.js|manifest.json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
       }
     ]
   }

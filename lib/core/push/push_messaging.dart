@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+
+import '../platform.dart';
 
 /// The phone side of push notifications (DECISIONS D-65), behind an interface
 /// so tests — and builds with no Firebase project yet — never touch Firebase.
@@ -36,7 +37,8 @@ class FirebasePushMessaging implements PushMessaging {
   @override
   Future<bool> initialize() async {
     if (_ready) return true;
-    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return false;
+    // Web push is Stage 2 of the web app (D-71); until then it stays off.
+    if (!(AppPlatform.isAndroidApp || AppPlatform.isIOSApp)) return false;
     try {
       await Firebase.initializeApp();
     } on Object catch (error) {
@@ -87,7 +89,7 @@ class FirebasePushMessaging implements PushMessaging {
   Stream<void> get foregroundMessages => FirebaseMessaging.onMessage;
 
   @override
-  String get platform => Platform.isIOS ? 'ios' : 'android';
+  String get platform => AppPlatform.isIOSApp ? 'ios' : 'android';
 }
 
 /// Push switched off: what tests use, and the fallback when Firebase is not

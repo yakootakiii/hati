@@ -7,6 +7,7 @@ analyzer:
     - build/**
     - android/**
     - ios/**
+    - web/**
   errors:
     # Money and split correctness depend on exhaustive handling and explicit
     # types — these are errors, not suggestions.

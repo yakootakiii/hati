@@ -20,10 +20,12 @@
   <!-- Shown when the app did not open by itself (DECISIONS D-69). -->
   <a id="open" class="button" href="#">Open in Hati</a>
   <p id="hint" class="muted"></p>
+  <!-- iPhones and computers: the web app (D-71). -->
+  <a id="web" class="button secondary" href="/app/">Open Hati on the web</a>
 
   <div class="card" id="noapp" hidden>
     <strong>Don't have Hati yet?</strong>
-    <p class="muted">Hati isn't in the app stores yet. Ask the person who invited you for the app, install it, then tap this link again.</p>
+    <p class="muted">Hati isn't in the app stores yet. Use <strong>Open Hati on the web</strong> above, or ask the person who invited you for the Android app.</p>
   </div>
 
   <footer><a href="/terms">Terms and Conditions</a> · <a href="/privacy">Privacy Notice</a></footer>
@@ -47,9 +49,11 @@
       'S.browser_fallback_url=' + encodeURIComponent(back) + ';end';
     hint.textContent = 'If Hati is installed, this opens the invite in the app.';
   } else {
-    open.href = 'com.hati.hati://join/' + token;
-    hint.textContent = 'Open this link on the phone where Hati is installed.';
+    // No app for iPhone or computers yet: the web app is the way in.
+    open.hidden = true;
+    hint.textContent = '';
   }
+  if (token) document.getElementById('web').href = '/app/#/join/' + token;
   if (params.has('noapp')) document.getElementById('noapp').hidden = false;
 </script>
 </body>

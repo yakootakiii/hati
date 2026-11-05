@@ -55,8 +55,7 @@ class SupabaseAttachmentStorage implements AttachmentStorage {
   static const _uuid = Uuid();
 
   @override
-  String newFilename({String extension = 'jpg'}) =>
-      '${_uuid.v4()}.$extension';
+  String newFilename({String extension = 'jpg'}) => '${_uuid.v4()}.$extension';
 
   @override
   Future<void> upload({
@@ -65,7 +64,9 @@ class SupabaseAttachmentStorage implements AttachmentStorage {
     required PickedImage image,
   }) {
     return _guard(() async {
-      await _client.storage.from(bucket.id).uploadBinary(
+      await _client.storage
+          .from(bucket.id)
+          .uploadBinary(
             path,
             image.bytes,
             fileOptions: FileOptions(
@@ -83,18 +84,14 @@ class SupabaseAttachmentStorage implements AttachmentStorage {
     Duration expiresIn = const Duration(hours: 1),
   }) {
     return _guard(
-      () => _client.storage.from(bucket.id).createSignedUrl(
-            path,
-            expiresIn.inSeconds,
-          ),
+      () => _client.storage
+          .from(bucket.id)
+          .createSignedUrl(path, expiresIn.inSeconds),
     );
   }
 
   @override
-  Future<void> remove({
-    required StorageBucket bucket,
-    required String path,
-  }) {
+  Future<void> remove({required StorageBucket bucket, required String path}) {
     return _guard(() async {
       await _client.storage.from(bucket.id).remove([path]);
     });
@@ -104,8 +101,7 @@ class SupabaseAttachmentStorage implements AttachmentStorage {
   Future<Uint8List> download({
     required StorageBucket bucket,
     required String path,
-  }) =>
-      _guard(() => _client.storage.from(bucket.id).download(path));
+  }) => _guard(() => _client.storage.from(bucket.id).download(path));
 
   static Future<T> _guard<T>(Future<T> Function() action) async {
     try {
@@ -132,5 +128,4 @@ Future<String> signedAttachmentUrl(
   Ref ref,
   StorageBucket bucket,
   String path,
-) =>
-    ref.watch(attachmentStorageProvider).signedUrl(bucket: bucket, path: path);
+) => ref.watch(attachmentStorageProvider).signedUrl(bucket: bucket, path: path);

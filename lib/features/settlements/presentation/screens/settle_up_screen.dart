@@ -1,11 +1,10 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_theme.dart';
+import '../../../../core/platform.dart';
 import '../../../../app/theme/semantic_colors.dart';
 import '../../../../core/images/attachment_storage.dart';
 import '../../../../core/images/image_gallery.dart';
@@ -520,8 +519,12 @@ class _MethodCard extends ConsumerWidget {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            'QR saved to your gallery. In ${WalletLauncher.appName(method.kind)}, '
-            'scan it from your photos.',
+            kIsWeb
+                ? 'QR downloaded. In ${WalletLauncher.appName(method.kind)}, '
+                      'scan it from your photos or files.'
+                : 'QR saved to your gallery. In '
+                      '${WalletLauncher.appName(method.kind)}, scan it from your '
+                      'photos.',
           ),
         ),
       );
@@ -626,7 +629,7 @@ class _MethodCard extends ConsumerWidget {
               FilledButton.tonalIcon(
                 onPressed: () => WalletLauncher.open(
                   method.kind,
-                  isAndroid: !kIsWeb && Platform.isAndroid,
+                  isAndroid: AppPlatform.isAndroidApp,
                 ),
                 icon: const Icon(Icons.open_in_new),
                 label: Text('Open ${WalletLauncher.appName(method.kind)}'),
