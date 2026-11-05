@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Postgres columns are snake_case; Dart fields are camelCase. Renaming
+          # here keeps every model free of per-field @JsonKey noise.
+          field_rename: snake
+          explicit_to_json: true

@@ -1,0 +1,52 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.g.dart
+*.freezed.dart
+.pub-cache/
+.pub/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+.DS_Store
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/ephemeral/
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+**/android/**/gradle-wrapper.jar
+*.jks
+
+# Secrets — never commit Supabase or FCM credentials
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+**/service-account*.json
+google-services.json
+GoogleService-Info.plist
+
+# Promo videos made with /brag — large, and regenerated on demand
+brag-output*/
+
+# Firebase CLI cache
+.firebase/
+
+# Machine-specific Flutter files
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+**/GeneratedPluginRegistrant.*

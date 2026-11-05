@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You're invited to a group on Hati</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+  <a class="brand" href="/" aria-label="Hati">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="var(--accent)" d="M21.8 7.8a16.4 16.4 0 0 0 0 32.8z"/><path fill="var(--accent)" d="M26.2 3.4a16.4 16.4 0 0 1 0 32.8z"/></svg>
+    Hati
+  </a>
+
+  <h1>You're invited to a group on Hati</h1>
+  <p class="muted">Hati keeps track of shared bills — who paid, who owes what, and who has settled up.</p>
+
+  <!-- Shown when the app did not open by itself (DECISIONS D-69). -->
+  <a id="open" class="button" href="#">Open in Hati</a>
+  <p id="hint" class="muted"></p>
+
+  <div class="card" id="noapp" hidden>
+    <strong>Don't have Hati yet?</strong>
+    <p class="muted">Hati isn't in the app stores yet. Ask the person who invited you for the app, install it, then tap this link again.</p>
+  </div>
+
+  <footer><a href="/terms">Terms and Conditions</a> · <a href="/privacy">Privacy Notice</a></footer>
+</main>
+<script>
+  // /join/<token>: tokens are letters, digits, - and _ only.
+  const token = (location.pathname.split('/join/')[1] || '').replace(/[^A-Za-z0-9_-]/g, '');
+  const open = document.getElementById('open');
+  const hint = document.getElementById('hint');
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const params = new URLSearchParams(location.search);
+
+  if (!token) {
+    open.hidden = true;
+    hint.textContent = 'This invite link is incomplete. Ask for a new one.';
+  } else if (isAndroid) {
+    // Opens Hati if installed; otherwise Chrome comes back here with ?noapp.
+    const back = location.origin + location.pathname + '?noapp=1';
+    open.href = 'intent://join/' + token +
+      '#Intent;scheme=com.hati.hati;package=com.hati.hati;' +
+      'S.browser_fallback_url=' + encodeURIComponent(back) + ';end';
+    hint.textContent = 'If Hati is installed, this opens the invite in the app.';
+  } else {
+    open.href = 'com.hati.hati://join/' + token;
+    hint.textContent = 'Open this link on the phone where Hati is installed.';
+  }
+  if (params.has('noapp')) document.getElementById('noapp').hidden = false;
+</script>
+</body>
+</html>

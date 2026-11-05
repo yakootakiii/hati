@@ -1,0 +1,36 @@
+/* Hati web pages — the app's design tokens (DECISIONS D-59). */
+@font-face { font-family: Inter; src: url(/fonts/Inter-Regular.ttf); font-weight: 400; font-display: swap; }
+@font-face { font-family: Inter; src: url(/fonts/Inter-SemiBold.ttf); font-weight: 600; font-display: swap; }
+:root {
+  --canvas: #F6F5F3; --surface: #FFFFFF; --ink: #1C1917; --muted: #66615C;
+  --hairline: #E7E5E2; --accent: #0F766E; --on-accent: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0E0E0D; --surface: #171716; --ink: #F2F1EF; --muted: #A29E99;
+    --hairline: #2B2A28; --accent: #4FD1C0; --on-accent: #032B28;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--canvas); color: var(--ink);
+  font: 400 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: 680px; margin: 0 auto; padding: 40px 20px 64px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; color: var(--ink); text-decoration: none; }
+.brand svg { width: 28px; height: 28px; }
+h1 { font-size: 30px; line-height: 1.2; letter-spacing: -0.02em; margin: 40px 0 12px; font-weight: 600; }
+h2 { font-size: 17px; margin: 32px 0 8px; font-weight: 600; }
+p, li { color: var(--ink); }
+.muted { color: var(--muted); font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 16px 20px; margin: 20px 0; }
+.button {
+  display: block; text-align: center; background: var(--accent); color: var(--on-accent);
+  font-weight: 600; text-decoration: none; padding: 14px 20px; border-radius: 10px; margin: 24px 0 12px;
+}
+.button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+a { color: var(--accent); }
+ul { padding-left: 20px; }
+footer { margin-top: 48px; font-size: 13px; color: var(--muted); }
+footer a { color: var(--muted); }

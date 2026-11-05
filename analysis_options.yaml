@@ -1,0 +1,32 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.freezed.dart"
+    - "**/*.g.dart"
+    - build/**
+    - android/**
+    - ios/**
+  errors:
+    # Money and split correctness depend on exhaustive handling and explicit
+    # types — these are errors, not suggestions.
+    missing_return: error
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_double_and_int_checks
+    - prefer_final_locals
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - require_trailing_commas
+    - sort_pub_dependencies
+    - unawaited_futures
+    - use_super_parameters
+
+    # Money hygiene (spec §4.1). These do not by themselves prove the absence
+    # of float money — `tool/check_no_float_money.sh` does that structurally —
+    # but they catch the easy mistakes at the keyboard.
+    - avoid_js_rounded_ints

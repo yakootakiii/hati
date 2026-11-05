@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hati.hati",
+      "sha256_cert_fingerprints": [
+        "CF:62:15:EF:2B:72:2C:72:CD:DC:0A:0D:BF:87:6A:53:88:4E:60:7C:40:47:C3:93:98:79:09:71:1B:06:70:B0"
+      ]
+    }
+  }
+]

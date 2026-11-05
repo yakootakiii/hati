@@ -1,0 +1,297 @@
+{
+  "note": "Shared test vectors for the split engine (spec §6). Consumed by BOTH implementations: test/core/split/split_engine_test.dart and supabase/tests/split_test.sql. Amounts are integer centavos. `input` is centavos for exact, hundredths of a percent for percent, thousandths of a share for shares. A case has either `expect` (user_id -> centavos) or `error` (a SplitFailure slug).",
+  "cases": [
+    {
+      "name": "§6.4 — ₱100.00 equal among 3, first by order gets the extra centavo",
+      "input": {
+        "total": 10000,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}]
+      },
+      "expect": {"u1": 3334, "u2": 3333, "u3": 3333}
+    },
+    {
+      "name": "§6.4 — ₱12,500 equal among 4 divides evenly",
+      "input": {
+        "total": 1250000,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}, {"user_id": "u4"}]
+      },
+      "expect": {"u1": 312500, "u2": 312500, "u3": 312500, "u4": 312500}
+    },
+    {
+      "name": "§6.4 — percent 33.33 / 33.33 / 33.34 of ₱1,000",
+      "input": {
+        "total": 100000,
+        "mode": "percent",
+        "participants": [
+          {"user_id": "u1", "input": 3333},
+          {"user_id": "u2", "input": 3333},
+          {"user_id": "u3", "input": 3334}
+        ]
+      },
+      "expect": {"u1": 33330, "u2": 33330, "u3": 33340}
+    },
+    {
+      "name": "§6.4 — shares 2 : 1 : 1 of ₱1,000",
+      "input": {
+        "total": 100000,
+        "mode": "shares",
+        "participants": [
+          {"user_id": "u1", "input": 2000},
+          {"user_id": "u2", "input": 1000},
+          {"user_id": "u3", "input": 1000}
+        ]
+      },
+      "expect": {"u1": 50000, "u2": 25000, "u3": 25000}
+    },
+    {
+      "name": "§6.4 — itemized with 10% service charge and a ₱50 discount that cancel",
+      "input": {
+        "total": 50000,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}],
+        "items": [
+          {"name": "Sisig", "amount": 30000, "assignees": ["u1", "u2"]},
+          {"name": "Rice", "amount": 5000, "assignees": ["u1", "u2", "u3"]},
+          {"name": "Halo-halo", "amount": 15000, "assignees": ["u3"]}
+        ],
+        "extras": {"service_charge": 5000, "tax": 0, "discount": 5000}
+      },
+      "expect": {"u1": 16667, "u2": 16667, "u3": 16666}
+    },
+    {
+      "name": "itemized where the service charge and discount do not cancel",
+      "input": {
+        "total": 61000,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}],
+        "items": [
+          {"name": "Sisig", "amount": 30000, "assignees": ["u1", "u2"]},
+          {"name": "Rice", "amount": 5000, "assignees": ["u1", "u2", "u3"]},
+          {"name": "Halo-halo", "amount": 15000, "assignees": ["u3"]},
+          {"name": "Drinks", "amount": 10000, "assignees": ["u1", "u2", "u3"]}
+        ],
+        "extras": {"service_charge": 6000, "tax": 0, "discount": 5000}
+      },
+      "expect": {"u1": 20334, "u2": 20333, "u3": 20333}
+    },
+    {
+      "name": "itemized with tax as well as a service charge",
+      "input": {
+        "total": 11200,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}],
+        "items": [
+          {"name": "Pizza", "amount": 8000, "assignees": ["u1", "u2"]},
+          {"name": "Beer", "amount": 2000, "assignees": ["u1"]}
+        ],
+        "extras": {"service_charge": 1000, "tax": 200, "discount": 0}
+      },
+      "expect": {"u1": 6720, "u2": 4480}
+    },
+    {
+      "name": "a participant assigned nothing owes nothing",
+      "input": {
+        "total": 10000,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}],
+        "items": [{"name": "Solo meal", "amount": 10000, "assignees": ["u1"]}],
+        "extras": {}
+      },
+      "expect": {"u1": 10000, "u2": 0}
+    },
+    {
+      "name": "one centavo among three — only the first is owed anything",
+      "input": {
+        "total": 1,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}]
+      },
+      "expect": {"u1": 1, "u2": 0, "u3": 0}
+    },
+    {
+      "name": "a single participant owes the whole bill (spec §12.5)",
+      "input": {
+        "total": 1250000,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}]
+      },
+      "expect": {"u1": 1250000}
+    },
+    {
+      "name": "percent that needs the largest remainder rule to land",
+      "input": {
+        "total": 333,
+        "mode": "percent",
+        "participants": [
+          {"user_id": "u1", "input": 3333},
+          {"user_id": "u2", "input": 3333},
+          {"user_id": "u3", "input": 3334}
+        ]
+      },
+      "expect": {"u1": 111, "u2": 111, "u3": 111}
+    },
+    {
+      "name": "fractional shares — 0.5 : 1 : 1 of ₱10",
+      "input": {
+        "total": 1000,
+        "mode": "shares",
+        "participants": [
+          {"user_id": "u1", "input": 500},
+          {"user_id": "u2", "input": 1000},
+          {"user_id": "u3", "input": 1000}
+        ]
+      },
+      "expect": {"u1": 200, "u2": 400, "u3": 400}
+    },
+    {
+      "name": "exact amounts that add up",
+      "input": {
+        "total": 100000,
+        "mode": "exact",
+        "participants": [
+          {"user_id": "u1", "input": 60000},
+          {"user_id": "u2", "input": 39999},
+          {"user_id": "u3", "input": 1}
+        ]
+      },
+      "expect": {"u1": 60000, "u2": 39999, "u3": 1}
+    },
+    {
+      "name": "the largest allowed bill still adds up (spec §12.10)",
+      "input": {
+        "total": 1000000000,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}, {"user_id": "u2"}, {"user_id": "u3"}]
+      },
+      "expect": {"u1": 333333334, "u2": 333333333, "u3": 333333333}
+    },
+
+    {
+      "name": "§6.4 reject — zero participants",
+      "input": {"total": 10000, "mode": "equal", "participants": []},
+      "error": "no_participants"
+    },
+    {
+      "name": "§6.4 reject — exact amounts that do not sum to the total",
+      "input": {
+        "total": 100000,
+        "mode": "exact",
+        "participants": [
+          {"user_id": "u1", "input": 50000},
+          {"user_id": "u2", "input": 49999}
+        ]
+      },
+      "error": "exact_sum_mismatch"
+    },
+    {
+      "name": "§6.4 reject — percents that do not reach 100",
+      "input": {
+        "total": 100000,
+        "mode": "percent",
+        "participants": [
+          {"user_id": "u1", "input": 5000},
+          {"user_id": "u2", "input": 4999}
+        ]
+      },
+      "error": "percent_sum_mismatch"
+    },
+    {
+      "name": "§6.4 reject — percents over 100",
+      "input": {
+        "total": 100000,
+        "mode": "percent",
+        "participants": [
+          {"user_id": "u1", "input": 5000},
+          {"user_id": "u2", "input": 5001}
+        ]
+      },
+      "error": "percent_sum_mismatch"
+    },
+    {
+      "name": "§6.4 reject — a zero weight",
+      "input": {
+        "total": 100000,
+        "mode": "shares",
+        "participants": [
+          {"user_id": "u1", "input": 1000},
+          {"user_id": "u2", "input": 0}
+        ]
+      },
+      "error": "non_positive_weight"
+    },
+    {
+      "name": "reject — a negative weight",
+      "input": {
+        "total": 100000,
+        "mode": "shares",
+        "participants": [
+          {"user_id": "u1", "input": 1000},
+          {"user_id": "u2", "input": -500}
+        ]
+      },
+      "error": "non_positive_weight"
+    },
+    {
+      "name": "§6.4 reject — an item with no assignees",
+      "input": {
+        "total": 10000,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}],
+        "items": [{"name": "Orphan", "amount": 10000, "assignees": []}],
+        "extras": {}
+      },
+      "error": "item_without_assignees"
+    },
+    {
+      "name": "reject — items that do not add up to the bill total",
+      "input": {
+        "total": 99999,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}],
+        "items": [{"name": "Meal", "amount": 10000, "assignees": ["u1"]}],
+        "extras": {}
+      },
+      "error": "items_total_mismatch"
+    },
+    {
+      "name": "reject — an item assigned to someone outside the bill",
+      "input": {
+        "total": 10000,
+        "mode": "itemized",
+        "participants": [{"user_id": "u1"}],
+        "items": [{"name": "Meal", "amount": 10000, "assignees": ["stranger"]}],
+        "extras": {}
+      },
+      "error": "unknown_assignee"
+    },
+    {
+      "name": "reject — a zero total",
+      "input": {
+        "total": 0,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}]
+      },
+      "error": "invalid_total"
+    },
+    {
+      "name": "reject — a bill over the ₱10,000,000 ceiling (spec §12.10)",
+      "input": {
+        "total": 1000000001,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}]
+      },
+      "error": "invalid_total"
+    },
+    {
+      "name": "reject — the same participant twice",
+      "input": {
+        "total": 10000,
+        "mode": "equal",
+        "participants": [{"user_id": "u1"}, {"user_id": "u1"}]
+      },
+      "error": "duplicate_participant"
+    }
+  ]
+}
