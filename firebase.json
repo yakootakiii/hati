@@ -40,6 +40,23 @@
           }
         ]
       }
+    ],
+    "redirects": [
+      {
+        "source": "/:app(App|APP|apps|Apps|APPS|webapp|web)",
+        "destination": "/app/",
+        "type": 301
+      },
+      {
+        "source": "/:app(App|APP|apps|Apps)/:rest*",
+        "destination": "/app/",
+        "type": 301
+      },
+      {
+        "source": "/:join(Join|JOIN)/:token",
+        "destination": "/join/:token",
+        "type": 301
+      }
     ]
   }
 }
