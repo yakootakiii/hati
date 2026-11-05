@@ -43,17 +43,12 @@
     ],
     "redirects": [
       {
-        "source": "/:app(App|APP|apps|Apps|APPS|webapp|web)",
+        "regex": "^/(App|APP|Apps|APPS|apps|webapp|web)(/.*)?$",
         "destination": "/app/",
         "type": 301
       },
       {
-        "source": "/:app(App|APP|apps|Apps)/:rest*",
-        "destination": "/app/",
-        "type": 301
-      },
-      {
-        "source": "/:join(Join|JOIN)/:token",
+        "regex": "^/(?:Join|JOIN)/(?P<token>[A-Za-z0-9_-]+)$",
         "destination": "/join/:token",
         "type": 301
       }
